@@ -354,7 +354,7 @@ export default function Feed({ inviteToken, navigate }: FeedProps) {
                 >
                   {/* Real or preview image */}
                   <img
-                    src={photo.mediaUrl.startsWith('http') || photo.mediaUrl.startsWith('blob:') ? photo.mediaUrl : `${API_BASE_URL}${photo.mediaUrl}`}
+                    src={photo.mediaUrl.startsWith('http') || photo.mediaUrl.startsWith('blob:') || photo.mediaUrl.startsWith('data:') ? photo.mediaUrl : `${API_BASE_URL}${photo.mediaUrl}`}
                     alt={`Photo by ${photo.uploaderDisplayName}`}
                     loading="lazy"
                     className={`w-full h-full object-cover select-none pointer-events-none transition-transform duration-500 group-hover:scale-105 ${
