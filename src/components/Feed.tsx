@@ -442,7 +442,7 @@ export default function Feed({ inviteToken, navigate }: FeedProps) {
         <QrModal
           isOpen={qrOpen}
           onClose={() => setQrOpen(false)}
-          inviteToken={partyInfo.inviteToken}
+          inviteToken={partyInfo.inviteToken || inviteToken}
           partyName={partyInfo.name}
         />
       )}
