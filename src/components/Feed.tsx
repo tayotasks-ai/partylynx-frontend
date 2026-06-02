@@ -63,7 +63,7 @@ export default function Feed({ inviteToken, navigate }: FeedProps) {
       setPartyInfo(partyData);
 
       // 2. Fetch initial photos
-      const photoRes = await fetch(`${API_BASE_URL}/api/photos/party/${partyData.id}`);
+      const photoRes = await fetch(`${API_BASE_URL}/api/photos/party/${partyData._id || partyData.id}`);
       const photoData = await photoRes.json();
       if (!photoRes.ok) throw new Error(photoData.message || 'Failed to load photos');
       setPhotos(photoData);
@@ -85,7 +85,7 @@ export default function Feed({ inviteToken, navigate }: FeedProps) {
       const newestPhoto = photos.find(p => !p.isOptimistic);
       const sinceParam = newestPhoto ? `?since=${newestPhoto.timestamp}` : '';
 
-      const res = await fetch(`${API_BASE_URL}/api/photos/party/${partyInfo._id}${sinceParam}`);
+      const res = await fetch(`${API_BASE_URL}/api/photos/party/${partyInfo._id || partyInfo.id}${sinceParam}`);
       const newPhotos = await res.json();
 
       if (!res.ok) throw new Error(newPhotos.message || 'Failed to refresh feed.');
@@ -128,7 +128,7 @@ export default function Feed({ inviteToken, navigate }: FeedProps) {
     
     const optimisticPhoto: Photo = {
       _id: tempId,
-      partyId: partyInfo._id,
+      partyId: partyInfo._id || partyInfo.id || '',
       guestId: currentUser.guestId,
       uploaderDisplayName: currentUser.displayName,
       mediaUrl: previewUrl,
@@ -152,7 +152,7 @@ export default function Feed({ inviteToken, navigate }: FeedProps) {
       formData.append('photo', compressedFile);
 
       // 4. POST file to backend
-      const uploadRes = await fetch(`${API_BASE_URL}/api/photos/party/${partyInfo._id}/upload`, {
+      const uploadRes = await fetch(`${API_BASE_URL}/api/photos/party/${partyInfo._id || partyInfo.id}/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,

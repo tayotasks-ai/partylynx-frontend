@@ -1,5 +1,6 @@
 export interface Party {
   _id: string;
+  id?: string;
   name: string;
   hostDisplayName: string;
   inviteToken: string;
