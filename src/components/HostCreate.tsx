@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import confetti from 'canvas-confetti';
 import { Camera, Users, Sparkles, Loader2 } from 'lucide-react';
 
+import { API_BASE_URL } from '../config';
+
 interface HostCreateProps {
   navigate: (path: string) => void;
 }
@@ -24,7 +26,7 @@ export default function HostCreate({ navigate }: HostCreateProps) {
     setError('');
 
     try {
-      const response = await fetch('/api/parties', {
+      const response = await fetch(`${API_BASE_URL}/api/parties`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -3,6 +3,7 @@ import { Camera, Share2, RefreshCw, Loader2, ArrowLeft, Image as ImageIcon, Aler
 import type { Photo, Party } from '../types';
 import { compressPhoto } from '../utils/compress';
 import QrModal from './QrModal';
+import { API_BASE_URL } from '../config';
 
 interface FeedProps {
   inviteToken: string;
@@ -56,13 +57,13 @@ export default function Feed({ inviteToken, navigate }: FeedProps) {
       setError('');
 
       // 1. Fetch party info
-      const partyRes = await fetch(`/api/parties/join/${inviteToken}`);
+      const partyRes = await fetch(`${API_BASE_URL}/api/parties/join/${inviteToken}`);
       const partyData = await partyRes.json();
       if (!partyRes.ok) throw new Error(partyData.message || 'Party details not found');
       setPartyInfo(partyData);
 
       // 2. Fetch initial photos
-      const photoRes = await fetch(`/api/photos/party/${partyData.id}`);
+      const photoRes = await fetch(`${API_BASE_URL}/api/photos/party/${partyData.id}`);
       const photoData = await photoRes.json();
       if (!photoRes.ok) throw new Error(photoData.message || 'Failed to load photos');
       setPhotos(photoData);
@@ -84,7 +85,7 @@ export default function Feed({ inviteToken, navigate }: FeedProps) {
       const newestPhoto = photos.find(p => !p.isOptimistic);
       const sinceParam = newestPhoto ? `?since=${newestPhoto.timestamp}` : '';
 
-      const res = await fetch(`/api/photos/party/${partyInfo._id}${sinceParam}`);
+      const res = await fetch(`${API_BASE_URL}/api/photos/party/${partyInfo._id}${sinceParam}`);
       const newPhotos = await res.json();
 
       if (!res.ok) throw new Error(newPhotos.message || 'Failed to refresh feed.');
@@ -151,7 +152,7 @@ export default function Feed({ inviteToken, navigate }: FeedProps) {
       formData.append('photo', compressedFile);
 
       // 4. POST file to backend
-      const uploadRes = await fetch(`/api/photos/party/${partyInfo._id}/upload`, {
+      const uploadRes = await fetch(`${API_BASE_URL}/api/photos/party/${partyInfo._id}/upload`, {
         method: 'POST',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -353,7 +354,7 @@ export default function Feed({ inviteToken, navigate }: FeedProps) {
                 >
                   {/* Real or preview image */}
                   <img
-                    src={photo.mediaUrl}
+                    src={photo.mediaUrl.startsWith('http') || photo.mediaUrl.startsWith('blob:') ? photo.mediaUrl : `${API_BASE_URL}${photo.mediaUrl}`}
                     alt={`Photo by ${photo.uploaderDisplayName}`}
                     loading="lazy"
                     className={`w-full h-full object-cover select-none pointer-events-none transition-transform duration-500 group-hover:scale-105 ${

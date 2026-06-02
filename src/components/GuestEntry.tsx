@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import confetti from 'canvas-confetti';
 import { Camera, AlertCircle, Loader2, LogIn } from 'lucide-react';
+import { API_BASE_URL } from '../config';
 
 interface GuestEntryProps {
   inviteToken: string;
@@ -40,7 +41,7 @@ export default function GuestEntry({ inviteToken, navigate }: GuestEntryProps) {
     try {
       setChecking(true);
       setError('');
-      const res = await fetch(`/api/parties/join/${inviteToken}`);
+      const res = await fetch(`${API_BASE_URL}/api/parties/join/${inviteToken}`);
       const data = await res.json();
 
       if (!res.ok) {
@@ -66,7 +67,7 @@ export default function GuestEntry({ inviteToken, navigate }: GuestEntryProps) {
     setError('');
 
     try {
-      const response = await fetch(`/api/parties/join/${inviteToken}`, {
+      const response = await fetch(`${API_BASE_URL}/api/parties/join/${inviteToken}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ displayName: displayName.trim() }),
