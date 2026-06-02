@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Camera, Share2, RefreshCw, Loader2, ArrowLeft, Image as ImageIcon, AlertTriangle } from 'lucide-react';
+import { Camera, Share2, RefreshCw, Loader2, ArrowLeft, Image as ImageIcon, AlertTriangle, X, Download } from 'lucide-react';
 import type { Photo, Party } from '../types';
 import { compressPhoto } from '../utils/compress';
 import QrModal from './QrModal';
@@ -23,6 +23,9 @@ export default function Feed({ inviteToken, navigate }: FeedProps) {
   
   // QR modal
   const [qrOpen, setQrOpen] = useState(false);
+  
+  // Lightbox modal state
+  const [selectedPhoto, setSelectedPhoto] = useState<Photo | null>(null);
 
   // Pull-to-refresh state variables
   const [pullDistance, setPullDistance] = useState(0);
@@ -344,7 +347,8 @@ export default function Feed({ inviteToken, navigate }: FeedProps) {
               return (
                 <div
                   key={photo._id}
-                  className={`group relative aspect-[3/4] rounded-2xl overflow-hidden glass-panel border transition-all duration-300 ${
+                  onClick={() => !isUploading && !isUploadFailed && setSelectedPhoto(photo)}
+                  className={`cursor-pointer group relative aspect-[3/4] rounded-2xl overflow-hidden glass-panel border transition-all duration-300 ${
                     isUploading
                       ? 'border-purple-500/40 opacity-75 pulse-border upload-shimmer'
                       : isUploadFailed
@@ -445,6 +449,52 @@ export default function Feed({ inviteToken, navigate }: FeedProps) {
           inviteToken={partyInfo.inviteToken || inviteToken}
           partyName={partyInfo.name}
         />
+      )}
+
+      {/* LIGHTBOX / FULL IMAGE MODAL */}
+      {selectedPhoto && (
+        <div className="fixed inset-0 z-50 flex flex-col justify-between bg-slate-950/95 backdrop-blur-md p-6">
+          {/* Top Info and Close */}
+          <div className="flex justify-between items-center w-full">
+            <div className="text-left">
+              <p className="text-sm font-display font-bold text-slate-100">
+                {selectedPhoto.uploaderDisplayName}
+              </p>
+              <p className="text-[10px] text-slate-500 mt-0.5">
+                {formatTime(selectedPhoto.timestamp)}
+              </p>
+            </div>
+            <button
+              onClick={() => setSelectedPhoto(null)}
+              className="p-2 bg-slate-900 border border-slate-800 rounded-full hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition cursor-pointer"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+
+          {/* Centered Image */}
+          <div className="flex-1 flex items-center justify-center p-2 my-4">
+            <img
+              src={selectedPhoto.mediaUrl.startsWith('http') || selectedPhoto.mediaUrl.startsWith('blob:') || selectedPhoto.mediaUrl.startsWith('data:') ? selectedPhoto.mediaUrl : `${API_BASE_URL}${selectedPhoto.mediaUrl}`}
+              alt={`Snapped by ${selectedPhoto.uploaderDisplayName}`}
+              className="max-w-full max-h-[70vh] object-contain rounded-2xl shadow-2xl border border-slate-900/40 select-none"
+            />
+          </div>
+
+          {/* Download Action */}
+          <div className="text-center pb-6">
+            <a
+              href={selectedPhoto.mediaUrl.startsWith('http') || selectedPhoto.mediaUrl.startsWith('blob:') || selectedPhoto.mediaUrl.startsWith('data:') ? selectedPhoto.mediaUrl : `${API_BASE_URL}${selectedPhoto.mediaUrl}`}
+              download={`partylynx-${selectedPhoto._id}.jpg`}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-tr from-slate-900 to-slate-900/60 border border-slate-800 hover:border-slate-700 text-slate-200 text-xs font-semibold rounded-xl transition cursor-pointer"
+            >
+              <Download className="w-4 h-4" />
+              <span>Open / Download Full Res</span>
+            </a>
+          </div>
+        </div>
       )}
     </div>
   );
